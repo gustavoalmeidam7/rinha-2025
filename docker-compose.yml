@@ -1,0 +1,81 @@
+x-service-template:
+  backend: &backend
+    image: gustavoalmeidam7-payments-rinha-back-2025
+    depends_on:
+     - nginx
+    networks:
+      - api
+      - queue
+      - payment-processor
+    expose:
+      - "9999"
+    # deploy:
+    #   resources:
+    #     limits:
+    #       cpus: '0.35'
+    #       memory: "50MB"
+
+
+networks:
+  api:
+    driver: bridge
+  queue:
+    driver: bridge
+  payment-processor:
+    external: true
+
+services:
+  backend01:
+    <<: *backend
+    hostname: backend01
+  
+  backend02:
+    <<: *backend
+    hostname: backend02
+
+  workers:
+    image: gustavoalmeidam7-workers-rinha-back-2025
+    depends_on:
+     - queue
+    networks:
+      - queue
+      - payment-processor
+    # deploy:
+    #   resources:
+    #     limits:
+    #       cpus: '0.35'
+    #       memory: "50MB"
+
+  queue:
+    image: redis:8.2-rc1-alpine3.22
+    container_name: redis
+    networks:
+      - queue
+    depends_on:
+      - backend01
+      - backend02
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./data:/data
+    # deploy:
+    #   resources:
+    #     limits:
+    #       cpus: '0.35'
+    #       memory: "50MB"
+
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    networks:
+      - api
+    ports:
+      - "9999:9999"
+    volumes:
+      - ./docker/nginx.conf:/etc/nginx/nginx.conf:ro
+    # deploy:
+    #   resources:
+    #     limits:
+    #       cpus: '0.35'
+    #       memory: "50MB"
+        

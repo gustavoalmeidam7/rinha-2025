@@ -1,0 +1,25 @@
+{
+    // Debug para vscode (Meu fiel escudeiro)
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug Workers",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "Workers.main"
+        },
+        {
+            "name": "Debug backend",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "uvicorn",
+            "args": [
+                "Payments.main:app",
+                "--reload",
+                "--port",
+                "9999"
+            ],
+            "jinja": false
+        }
+    ]
+}
