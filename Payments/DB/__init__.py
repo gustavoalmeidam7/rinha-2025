@@ -7,5 +7,3 @@ redis = Redis(
     host=env.get("redis_host"),
     decode_responses=True
 )
-
-a = 1
