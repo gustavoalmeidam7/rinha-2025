@@ -1,12 +1,12 @@
-from Workers.DB import redis
+from DB import redis
 
-from Workers.Schema.SendTransaction import SendTransaction
-from Workers.Schema.HealthStatus import HealthStatuses
+from Schema.SendTransaction import SendTransaction
+from Schema.HealthStatus import HealthStatuses
 
 import json
 
-def insert_health(health: HealthStatuses):
-    redis.lpush("health", health.model_dump_json())
+async def insert_health(health: HealthStatuses):
+    await redis.lpush("health", health.model_dump_json())
 
 async def pop_transaction() -> SendTransaction | None:
     transaction = await redis.rpop("transactions") # type: ignore
