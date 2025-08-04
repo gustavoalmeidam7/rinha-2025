@@ -3,8 +3,8 @@
     "social": ["https://instagram.com/user/gustavoalmeidam7", "https://linkedin.com/in/gustavo-almeida-martins-m7/"],
     "source-code-repo": "https://github.com/gustavoalmeidam7/rinha-de-backend-2025",
     "langs": ["Python"],
-    "storages": ["postgresql"],
-    "messaging": [ ],
+    "storages": ["redis"],
+    "messaging": ["redis-queue"],
     "load-balancers": ["nginx"],
     "other-technologies": ["FastAPI"]
 }
