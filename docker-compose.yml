@@ -1,11 +1,11 @@
 x-service-template:
   backend: &backend
-    image: gustavoalmeidam7-payments-rinha-back-2025
+    image: gustavoalmeidam7/rinhaback-payments-2025
     depends_on:
-     - nginx
+     - redis
     networks:
-      - api
-      - queue
+      - api-network
+      - redis-network
       - payment-processor
     expose:
       - "9999"
@@ -15,11 +15,26 @@ x-service-template:
     #       cpus: '0.35'
     #       memory: "50MB"
 
+  workers: &workers
+    image: gustavoalmeidam7/rinhaback-workers-2025
+    networks:
+      - redis-network
+      - payment-processor
+    depends_on:
+     - redis
+    environment:
+      - default_processor=http://payment-processor-default:8080
+      - fallback_processor=http://payment-processor-fallback:8080
+    # deploy:
+    #   resources:
+    #     limits:
+    #       cpus: '0.35'
+    #       memory: "50MB"
 
 networks:
-  api:
+  api-network:
     driver: bridge
-  queue:
+  redis-network:
     driver: bridge
   payment-processor:
     external: true
@@ -27,37 +42,23 @@ networks:
 services:
   backend01:
     <<: *backend
-    hostname: backend01
+    hostname: backendone
   
   backend02:
     <<: *backend
-    hostname: backend02
+    hostname: backendtwo
 
   workers:
-    image: gustavoalmeidam7-workers-rinha-back-2025
-    depends_on:
-     - queue
-    networks:
-      - queue
-      - payment-processor
-    # deploy:
-    #   resources:
-    #     limits:
-    #       cpus: '0.35'
-    #       memory: "50MB"
+    <<: *workers
 
-  queue:
+  redis:
     image: redis:8.2-rc1-alpine3.22
     container_name: redis
+    hostname: redis
     networks:
-      - queue
-    depends_on:
-      - backend01
-      - backend02
+      - redis-network
     ports:
       - "6379:6379"
-    volumes:
-      - ./data:/data
     # deploy:
     #   resources:
     #     limits:
@@ -68,11 +69,14 @@ services:
     image: nginx:latest
     container_name: nginx
     networks:
-      - api
+      - api-network
     ports:
       - "9999:9999"
     volumes:
       - ./docker/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - backend01
+      - backend02
     # deploy:
     #   resources:
     #     limits:

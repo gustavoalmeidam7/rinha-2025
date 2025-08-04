@@ -1,10 +1,11 @@
-from Workers.Service.HealthService import coroutine_get_health
+from Service.HealthService import coroutine_get_health
 
-from Workers.Service.Transaction import run_workers
+from Service.Transaction import run_workers
 
 import asyncio
 
 async def main():
+    print("Starting up workers!")
     worker_health = asyncio.create_task(coroutine_get_health())
     worker_transactions = asyncio.create_task(run_workers())
 

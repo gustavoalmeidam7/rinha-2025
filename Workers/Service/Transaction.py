@@ -1,18 +1,18 @@
 import asyncio
 from httpx import AsyncClient
 
-from Workers.Service.Queue import pop_transaction
+from Service.Queue import pop_transaction
 
-from Workers.Schema.RequestResponse import RequestResponse
-from Workers.Schema.SendTransaction import SendTransaction
-from Workers.Schema.PaymentsSummaryScheme import Transaction
+from Schema.RequestResponse import RequestResponse
+from Schema.SendTransaction import SendTransaction
+from Schema.PaymentsSummaryScheme import Transaction
 
-from Workers.Service.HealthService import healthStatuses, processors
-from Workers.Service.Queue import insert_transaction
+from Service.HealthService import healthStatuses, processors
+from Service.Queue import insert_transaction
 
-from Workers.Service.Database import append_values
+from Service.Database import append_values
 
-from Workers.Utils.Env import env
+from Utils.Env import env
 
 WORKERS = env.get("workers")
 

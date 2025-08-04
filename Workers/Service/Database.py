@@ -1,6 +1,6 @@
-from Workers.DB import redis
+from DB import redis
 
-from Workers.Schema.PaymentsSummaryScheme import Transaction, PaymentsSummary
+from Schema.PaymentsSummaryScheme import Transaction, PaymentsSummary
 
 async def append_values(transaction: Transaction, isFallback: bool):
     summary = await get_summary()

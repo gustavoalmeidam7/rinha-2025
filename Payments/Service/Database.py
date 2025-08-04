@@ -1,7 +1,8 @@
 from typing import List
-from Payments.DB import redis
+from DB import redis
 
-from Payments.Schema.PaymentsSummaryScheme import Transaction, PaymentsSummary
+from Schema.PaymentsSummaryScheme import Transaction, PaymentsSummary
+from Schema.SummarySchema import SummarySchema
 
 from datetime import datetime
 
@@ -20,11 +21,27 @@ async def update_summary(Transactions: PaymentsSummary):
     print(str(await redis.get("summary")))
 
 def filter_summary_by_datetime(payments: PaymentsSummary, from_datetime: datetime, to_datetime: datetime) -> List[Transaction]:
-    filtered_transactions = payments.Transactions
-    filtered_transactions = filter(lambda d: d.requestedAt > from_datetime, filtered_transactions)
-    filtered_transactions = filter(lambda d: d.requestedAt < to_datetime, filtered_transactions)
+    filteredTransactions = payments.Transactions
+    filteredTransactions = filter(lambda d: d.requestedAt > from_datetime, filteredTransactions)
+    filteredTransactions = filter(lambda d: d.requestedAt < to_datetime, filteredTransactions)
 
-    return list(filtered_transactions)
+    return list(filteredTransactions)
+
+def convert_to_summary_schema(payments: list[Transaction]):
+    summarySchema = SummarySchema()
+
+    def do_processing_stuff(payment: Transaction):
+        if payment.isFallback:
+            summarySchema.fallback.totalAmount = payment.amount
+            summarySchema.fallback.totalRequests += 1
+            return
+        
+        summarySchema.default.totalAmount = payment.amount
+        summarySchema.default.totalRequests += 1
+        
+    map(do_processing_stuff, payments)
+
+    return summarySchema
 
 async def get_summary() -> PaymentsSummary:
     summary = await redis.get("summary")

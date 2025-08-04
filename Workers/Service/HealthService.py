@@ -3,15 +3,17 @@ from fastapi import status
 from enum import StrEnum
 import asyncio
 
-from Workers.Schema.HealthStatus import HealthStatuses
-from Workers.Service.Queue import insert_health
-from Workers.Utils.Env import env
+from Schema.HealthStatus import HealthStatuses
+from Service.Queue import insert_health
+from Utils.Env import env
+
+import os
 
 healthStatuses = HealthStatuses()
 
 class processors(StrEnum):
-    Default = "http://localhost:8001"
-    Fallback = "http://localhost:8002"
+    Default = os.getenv("default_processor") or "http://localhost:8001"
+    Fallback = os.getenv("fallback_processor") or "http://localhost:8001"
 
 async def coroutine_get_health():
     executeHealtDelay = env.get("workers_health_delay")
@@ -49,4 +51,4 @@ async def get_health():
         healthStatuses.Fallback.isFailing = True
         healthStatuses.Fallback.minResponseTime = 999
 
-    # insert_health(healthStatuses)
+    await insert_health(healthStatuses)
